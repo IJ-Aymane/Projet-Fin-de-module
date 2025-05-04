@@ -1,21 +1,26 @@
-import './App.css'
-import Users from './components/Users'
+import './App.css';
+import Signalements from './components/Signalements';
 
 function App() {
 
-  const fun = ()=>{
-    console.log("click")
-  }
+  const fun = () => {
+    console.log("click");
+  };
 
   return (
     <>
-      <h1 class="text-3xl font-bold underline text-red-300">
-        Hello world!
-      </h1>     
-      <button className='bg-blue-300 border rounded px-2 ' onClick={fun}>ok</button>  
-      <Users />
+      <button className='bg-blue-300 border rounded px-2' onClick={fun}>
+        ok
+      </button>
+      
+      <div>
+        <p>Test simple sans appel à l'API</p>
+      </div>
+
+      {/* Vérifie si le composant Signalements s'affiche */}
+      <Signalements />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

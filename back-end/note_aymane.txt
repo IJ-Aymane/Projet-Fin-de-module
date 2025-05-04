@@ -1,0 +1,101 @@
+🔁 Étapes du traitement des données dans une API FastAPI (back-end)
+🧱 1. Modèle de données (SQLAlchemy – models/)
+On définit la structure des tables de la base de données avec SQLAlchemy.
+
+Exemple :
+
+python
+# models/signalement.py
+class Signalement(Base):
+    __tablename__ = "signalements"
+    id = Column(Integer, primary_key=True, index=True)
+    description = Column(String)
+    date = Column(DateTime)'
+
+🧮 2. Connexion & création de la base (core/config.py, core/init_db.py)
+On configure la connexion à la base (ex: PostgreSQL, MySQL, SQLite).
+
+Exécution automatique des migrations ou création des tables.
+
+python :
+
+# core/config.py
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+🧾 3. Schéma Pydantic (Validation – schemas/)
+Définit le format de données attendu ou retourné dans les requêtes API.
+
+Pydantic s’occupe de la validation automatique des données.
+
+python :
+
+# schemas/signalement.py
+class SignalementCreate(BaseModel):
+    description: str
+    date: datetime
+🛠️ 4. Fonctions CRUD (logique métier – crud/)
+Ce sont des fonctions Python qui :
+
+Lisent / insèrent / mettent à jour les données dans la base.
+
+Utilisent SQLAlchemy avec les modèles.
+
+python :
+
+# crud/signalement.py
+def create_signalement(db: Session, data: SignalementCreate):
+    db_signalement = Signalement(**data.dict())
+    db.add(db_signalement)
+    db.commit()
+    db.refresh(db_signalement)
+    return db_signalement
+🌐 5. Route API (FastAPI – api/)
+Gère les endpoints HTTP :
+
+/api/signalements/ POST → pour créer un signalement.
+
+/api/signalements/ GET → pour récupérer tous les signalements.
+
+Elle appelle les fonctions de crud/.
+
+python
+Copy code
+# api/signalement.py
+@router.post("/signalements/", response_model=Signalement)
+def create(data: SignalementCreate, db: Session = Depends(get_db)):
+    return crud.create_signalement(db, data)
+💬 6. Réponse JSON envoyée au client
+FastAPI transforme l'objet retourné (db_signalement) en JSON valide.
+
+Le client (comme une app ou une interface web) reçoit la réponse formatée.
+
+json
+Copy code
+{
+  "id": 1,
+  "description": "Panne électrique",
+  "date": "2025-04-29T16:30:00"
+}
+🗺️ Résumé en image
+scss
+Copy code
+BASE DE DONNÉES ⇄ MODELS (SQLAlchemy)
+        ⇅
+     CRUD LOGIC
+        ⇅
+   ROUTES (FastAPI)
+        ⇅
+SCHÉMAS (Validation Pydantic)
+        ⇅
+     CLIENT (JSON)
+Souhaites-tu un schéma visuel (image) ou un PDF résumé de ce processus ?
+
+
+
+
+
+
+
+
