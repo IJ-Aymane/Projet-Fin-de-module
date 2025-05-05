@@ -1,105 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
+import AjouterSignalement from './AjouterSignalement';
+import ListeSignalements from './ListeSignalements';
 
 const Signalements = () => {
-  const [signalements, setSignalements] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    // Afficher un message pendant le chargement
-    console.log('Tentative de récupération des signalements...');
-    setLoading(true);
-    
-    // URL de l'API sans préfixe /api puisque votre route est directement configurée
-    const apiUrl = 'http://127.0.0.1:8000/api/signalements/';
-    
-    axios.get(apiUrl, {
-      headers: {
-        'Accept': 'application/json'
-      }
-    })
-      .then(response => {
-        console.log('Données récupérées:', response.data);
-        setSignalements(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Erreur détaillée:', error);
-        
-        if (error.response) {
-          console.error('Statut de la réponse:', error.response.status);
-          console.error('Données de la réponse:', error.response.data);
-          setError(`Erreur ${error.response.status}: ${JSON.stringify(error.response.data)}`);
-        } else if (error.request) {
-          console.error('Requête sans réponse:', error.request);
-          setError('Aucune réponse du serveur. Vérifiez que votre API est en cours d\'exécution.');
-        } else {
-          console.error('Erreur de configuration:', error.message);
-          setError(`Erreur: ${error.message}`);
-        }
-        
-        setLoading(false);
-      });
-  }, []);
 
-  // Afficher un état de chargement
-  if (loading) {
-    return (
-      <div>
-        <h2>Liste des signalements</h2>
-        <p>Chargement des données...</p>
-      </div>
-    );
-  }
+  const handleSignalementAdded = () => {
+    setRefreshKey(oldKey => oldKey + 1);
+  };
 
-  // Afficher l'erreur s'il y en a une
-  if (error) {
-    return (
-      <div>
-        <h2>Liste des signalements</h2>
-        <p style={{ color: 'red' }}>Erreur: {error}</p>
-        <p>Vérifiez que votre API est en cours d'exécution et que CORS est correctement configuré.</p>
-      </div>
-    );
-  }
-
-  // Afficher les signalements
   return (
-    <div>
-      <h2>Liste des signalements</h2>
-      {signalements.length === 0 ? (
-        <p>Aucun signalement disponible</p>
-      ) : (
-        <div>
-          <p>Nombre de signalements: {signalements.length}</p>
-          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {signalements.map((signalement) => (
-              <li key={signalement.id} className="border p-4 rounded shadow">
-                <h3 className="text-xl font-bold">{signalement.titre}</h3>
-                <div className="mt-2">
-                  <p><strong>Localisation:</strong> {signalement.localisation}, {signalement.ville}</p>
-                  <p><strong>Description:</strong> {signalement.description}</p>
-                  <p><strong>Commentaire:</strong> {signalement.commentaire || 'Aucun commentaire'}</p>
-                  <p><strong>Catégorie:</strong> {signalement.categorie}</p>
-                  <p><strong>Gravité:</strong> <span className={
-                    signalement.gravite === 'urgent' ? 'text-red-600 font-bold' : 
-                    signalement.gravite === 'majeur' ? 'text-orange-500 font-bold' : 
-                    'text-blue-500'
-                  }>{signalement.gravite}</span></p>
-                  <p><strong>Status:</strong> <span className={
-                    signalement.status === 'nouveau' ? 'text-green-600' : 
-                    signalement.status === 'en_cours' ? 'text-yellow-600' : 
-                    'text-gray-600'
-                  }>{signalement.status}</span></p>
-                  <p><strong>Créé le:</strong> {new Date(signalement.created_at).toLocaleString()}</p>
-                  <p><strong>Mis à jour le:</strong> {new Date(signalement.updated_at).toLocaleString()}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Gestion des signalements</h2>
+        <p className="text-gray-600">
+          Utilisez ce tableau de bord pour signaler des incidents et consulter la liste des signalements existants.
+        </p>
+      </div>
+
+      {/* Onglets */}
+      <div className="mb-6">
+        <nav className="flex border-b border-gray-200">
+          <button className="py-2 px-4 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
+            Tous les signalements
+          </button>
+          <button className="py-2 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+            Mes signalements
+          </button>
+        </nav>
+      </div>
+
+      {/* Formulaire d'ajout de signalement */}
+      <AjouterSignalement onSignalementAdded={handleSignalementAdded} />
+
+      {/* Liste des signalements */}
+      <ListeSignalements key={refreshKey} />
     </div>
   );
 };
