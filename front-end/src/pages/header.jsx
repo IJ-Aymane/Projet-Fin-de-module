@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiSearch, FiUser } from 'react-icons/fi';
 
-export default function Header({ isAuthenticated }) {
+function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const isAuthenticated = !!localStorage.getItem('currentUser');
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -16,6 +17,11 @@ export default function Header({ isAuthenticated }) {
     console.log('Search:', searchQuery);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser');
+    window.location.reload(); // Refresh to update auth state
+  };
+
   return (
     <header className="w-full bg-violet-950 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,21 +29,32 @@ export default function Header({ isAuthenticated }) {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="text-2xl font-bold text-violet-300 hover:text-blue-700 transition-colors">
-              IJSoS
+              Système de Signalements
             </Link>
           </div>
 
+          {/* Navigation Links - Desktop */}
+          <div className="hidden md:flex items-center space-x-6">
+            <Link to="/signalements" className="text-gray-300 hover:text-blue-300 transition-colors">
+              Liste des signalements
+            </Link>
+            {isAuthenticated && (
+              <Link to="/ajouter" className="text-gray-300 hover:text-blue-300 transition-colors">
+                Ajouter un signalement
+              </Link>
+            )}
+          </div>
 
           {/* Right Section */}
           <div className="hidden md:flex items-center space-x-4">
             <form onSubmit={handleSearch} className="relative">
-            <input
+              <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Rechercher..."
                 className="pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent placeholder-gray-300"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              />
 
               <button 
                 type="submit"
@@ -47,12 +64,21 @@ export default function Header({ isAuthenticated }) {
               </button>
             </form>
 
-            <Link 
-              to={isAuthenticated ? "/profile" : "/login"} 
-              className="p-2 text-gray-300 hover:text-blue-300 transition-colors"
-            >
-              <FiUser size={20} />
-            </Link>
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                className="p-2 text-gray-300 hover:text-blue-300 transition-colors"
+              >
+                Se déconnecter
+              </button>
+            ) : (
+              <Link 
+                to="/login"
+                className="p-2 text-gray-300 hover:text-blue-300 transition-colors"
+              >
+                <FiUser size={20} />
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -78,33 +104,67 @@ export default function Header({ isAuthenticated }) {
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div className="md:hidden bg-violet-950 shadow-md">
-          <div className="px-2 pt-2 pb-4 flex items-center space-x-2">
-            <form onSubmit={handleSearch} className="flex-1">
-              <div className="relative">
-                <input
+          <div className="px-2 pt-2 pb-4 space-y-3">
+            {/* Mobile Navigation Links */}
+            <Link 
+              to="/signalements" 
+              className="block px-3 py-2 text-gray-300 hover:text-blue-300 transition-colors"
+            >
+              Liste des signalements
+            </Link>
+            {isAuthenticated && (
+              <Link 
+                to="/ajouter"
+                className="block px-3 py-2 text-gray-300 hover:text-blue-300 transition-colors"
+              >
+                Ajouter un signalement
+              </Link>
+            )}
+            
+            {/* Mobile Search */}
+            <div className="pt-2">
+              <form onSubmit={handleSearch} className="flex-1">
+                <div className="relative">
+                  <input
                     type="text"
-                    placeholder="Search..."
+                    placeholder="Rechercher..."
                     className="block w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-300"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                <button 
-                  type="submit"
-                  className="absolute right-3 top-3 text-gray-300 hover:text-blue-600"
+                  />
+                  <button 
+                    type="submit"
+                    className="absolute right-3 top-3 text-gray-300 hover:text-blue-600"
+                  >
+                    <FiSearch size={18} />
+                  </button>
+                </div>
+              </form>
+            </div>
+            
+            {/* Mobile Auth */}
+            <div className="pt-2 pb-1">
+              {isAuthenticated ? (
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-3 py-2 text-gray-300 hover:text-blue-300 transition-colors"
                 >
-                  <FiSearch size={18} />
+                  Se déconnecter
                 </button>
-              </div>
-            </form>
-            <Link 
-              to={isAuthenticated ? "/profile" : "/login"} 
-              className="p-2 text-gray-300 hover:text-blue-600 transition-colors"
-            >
-              <FiUser size={20} />
-            </Link>
+              ) : (
+                <Link 
+                  to="/login"
+                  className="block px-3 py-2 text-gray-300 hover:text-blue-300 transition-colors"
+                >
+                  Se connecter
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       )}
     </header>
   );
 }
+
+export default Header;

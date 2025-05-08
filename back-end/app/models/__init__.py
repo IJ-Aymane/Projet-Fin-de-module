@@ -2,3 +2,4 @@
 from app.core.database import Base
 from app.models.citizen import Citizen
 from app.models.signalement import Signalement
+from app.models.admin import Admin

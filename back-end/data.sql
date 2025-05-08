@@ -41,3 +41,10 @@ CREATE INDEX idx_ville ON signalements(ville);
 
 -- Optionnel : Ajout d'un index pour améliorer les recherches par catégorie
 CREATE INDEX idx_categorie ON signalements(categorie);
+
+
+INSERT INTO admin (email, password_hash)
+VALUES (
+    'admin2@example.com',
+    '$2b$12$kLNfGDMUgAd8Rybj6Z7Aa.ZdlrqUtuFujYQLlrTZ/ciNMTvY3KoBW'
+);
