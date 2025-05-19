@@ -33,7 +33,7 @@ CREATE TABLE signalements (
     status ENUM('nouveau', 'en_cours', 'résolu') DEFAULT 'nouveau',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (citizen_id) REFERENCES citizen(id) ON DELETE CASCADE
+    FOREIGN KEY (   ) REFERENCES citizen(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Optionnel : Ajout d'un index pour améliorer les recherches par ville

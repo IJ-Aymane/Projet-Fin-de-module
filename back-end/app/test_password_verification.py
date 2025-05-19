@@ -1,13 +1,13 @@
 import bcrypt
 
 # Hash du mot de passe stocké dans la base de données
-hashed_password = "$2b$12$kLNfGDMUgAd8Rybj6Z7Aa.ZdlrqUtuFujYQLlrTZ/ciNMTvY3KoBW"
+hashed_password = "$2b$12$fsDw8TMi8.69K6vIhDyqMux9FNK9/as31pIND.t7MGefBEczQkpui"
 hashed_password_bytes = hashed_password.encode('utf-8')
 
 # Générons un nouveau mot de passe et vérifions s'il correspond au hash
 def create_matching_password():
     # Créons un nouveau mot de passe
-    password = "admin123"
+    password = "asmae123"
     password_bytes = password.encode('utf-8')
     
     # Générons un hash pour ce mot de passe
