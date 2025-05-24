@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from typing import Optional
 from app.core.database import get_db
 from app.schemas.signalement import SignalementOut, SignalementCreate, SignalementUpdate
 from app.crud.signalement import (
     get_all_signalements,
     create_signalement,
-    update_signalement
+    update_signalement,
+    search_signalements
 )
 from app.models.signalement import Signalement
 
@@ -15,6 +17,42 @@ router = APIRouter()
 @router.get("/", response_model=list[SignalementOut])
 def get_signalements(db: Session = Depends(get_db)):
     return get_all_signalements(db)
+
+# GET : rechercher des signalements
+@router.get("/search", response_model=list[SignalementOut])
+def search_signalements_endpoint(
+    db: Session = Depends(get_db),
+    titre: Optional[str] = Query(None, description="Rechercher par titre"),
+    ville: Optional[str] = Query(None, description="Rechercher par ville"),
+    categorie: Optional[str] = Query(None, description="Filtrer par catégorie"),
+    status: Optional[str] = Query(None, description="Filtrer par status"),
+    gravite: Optional[str] = Query(None, description="Filtrer par gravité"),
+    citizen_id: Optional[int] = Query(None, description="Filtrer par ID citoyen"),
+    description: Optional[str] = Query(None, description="Rechercher dans la description")
+):
+    """
+    Rechercher des signalements selon différents critères.
+    Tous les paramètres sont optionnels et peuvent être combinés.
+    """
+    # Filtrer les paramètres None ou vides avant de les passer
+    search_params = {}
+    
+    if titre and titre.strip():
+        search_params["titre"] = titre.strip()
+    if ville and ville.strip():
+        search_params["ville"] = ville.strip()
+    if categorie and categorie.strip():
+        search_params["categorie"] = categorie.strip()
+    if status and status.strip():
+        search_params["status"] = status.strip()
+    if gravite and gravite.strip():
+        search_params["gravite"] = gravite.strip()
+    if citizen_id and citizen_id > 0:
+        search_params["citizen_id"] = citizen_id
+    if description and description.strip():
+        search_params["description"] = description.strip()
+    
+    return search_signalements(db, search_params)
 
 # POST : créer un signalement
 @router.post("/", response_model=SignalementOut)
