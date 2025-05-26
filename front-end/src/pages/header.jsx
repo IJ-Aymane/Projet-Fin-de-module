@@ -6,20 +6,19 @@ function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const isAuthenticated = !!localStorage.getItem('currentUser');
-  
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-  
+
   const handleSearch = (e) => {
     e.preventDefault();
-    // Add search logic here
     console.log('Search:', searchQuery);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
-    window.location.reload(); // Refresh to update auth state
+    window.location.reload();
   };
 
   return (
@@ -55,7 +54,6 @@ function Header() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-
               <button 
                 type="submit"
                 className="absolute right-3 top-3 text-gray-300 hover:text-blue-600"
@@ -120,7 +118,7 @@ function Header() {
                 Ajouter un signalement
               </Link>
             )}
-            
+
             {/* Mobile Search */}
             <div className="pt-2">
               <form onSubmit={handleSearch} className="flex-1">
@@ -141,7 +139,7 @@ function Header() {
                 </div>
               </form>
             </div>
-            
+
             {/* Mobile Auth */}
             <div className="pt-2 pb-1">
               {isAuthenticated ? (
