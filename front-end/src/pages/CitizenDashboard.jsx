@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CitizenDashboard = () => {
-  const [userId, setUserId] = useState(3); // Using existing citizen ID
-  const [citizen, setCitizen] = useState({ email: "", numero_telephone: "" }); // Store citizen profile data
+  const navigate = useNavigate();
+  const [userId, setUserId] = useState(null);
+  const [citizen, setCitizen] = useState({ email: "", numero_telephone: "" });
   const [signalements, setSignalements] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -16,16 +18,16 @@ const CitizenDashboard = () => {
     description: "",
     categorie: "police",
     gravite: "mineur",
-    commentaire: ""
+    commentaire: "",
   });
   const [profileFormData, setProfileFormData] = useState({
     email: "",
-    numero_telephone: ""
+    numero_telephone: "",
   });
   const [passwordFormData, setPasswordFormData] = useState({
     currentPassword: "",
     newPassword: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
 
   // API base URLs
@@ -33,7 +35,7 @@ const CitizenDashboard = () => {
   const SIGNALEMENT_API = `${API_BASE}/signalements`;
   const CITIZEN_API = `${API_BASE}/citizens`;
 
-  // Mock data for demonstration
+  // Mock data for fallback
   const mockSignalements = [
     {
       id: 1,
@@ -47,27 +49,63 @@ const CitizenDashboard = () => {
       status: "nouveau",
       commentaire: "Urgence de réparation",
       created_at: "2025-06-03T10:30:00.000Z",
-      updated_at: "2025-06-03T10:30:00.000Z"
-    }
+      updated_at: "2025-06-03T10:30:00.000Z",
+    },
   ];
 
+  // Check authentication and role on component mount
   useEffect(() => {
-    fetchCitizen();
-    fetchSignalements();
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    const storedUserId = localStorage.getItem("user_id");
+
+    if (!token || !storedUserId) {
+      navigate("/login");
+      return;
+    }
+
+    if (role !== "citizen") {
+      if (role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/login");
+      }
+      return;
+    }
+
+    setUserId(parseInt(storedUserId, 10));
+  }, [navigate]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchCitizen();
+      fetchSignalements();
+    }
   }, [userId]);
 
   const fetchCitizen = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${CITIZEN_API}/${userId}`);
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${CITIZEN_API}/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
       if (!response.ok) {
+        if (response.status === 401) {
+          navigate("/login");
+          return;
+        }
         throw new Error("Failed to fetch citizen data");
       }
       const data = await response.json();
       setCitizen(data);
       setProfileFormData({
         email: data.email,
-        numero_telephone: data.numero_telephone
+        numero_telephone: data.numero_telephone,
       });
     } catch (error) {
       console.error("Erreur lors du chargement du profil:", error);
@@ -80,15 +118,29 @@ const CitizenDashboard = () => {
   const fetchSignalements = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${SIGNALEMENT_API}/`);
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${SIGNALEMENT_API}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
       if (!response.ok) {
+        if (response.status === 401) {
+          navigate("/login");
+          return;
+        }
         throw new Error("Failed to fetch signalements");
       }
       const data = await response.json();
-      setSignalements(data);
+      // Filter signalements to show only those where citizen_id matches userId
+      const userSignalements = data.filter((signalement) => signalement.citizen_id === userId);
+      setSignalements(userSignalements);
     } catch (error) {
       console.error("Erreur lors du chargement des signalements:", error);
-      setSignalements(mockSignalements);
+      // Filter mock data to match userId
+      setSignalements(mockSignalements.filter((signalement) => signalement.citizen_id === userId));
     } finally {
       setLoading(false);
     }
@@ -96,19 +148,25 @@ const CitizenDashboard = () => {
 
   const updateProfile = async () => {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${CITIZEN_API}/${userId}`, {
         method: "PUT",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json",
         },
         body: JSON.stringify({
           email: profileFormData.email,
-          numero_telephone: profileFormData.numero_telephone
-        })
+          numero_telephone: profileFormData.numero_telephone,
+        }),
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          navigate("/login");
+          return;
+        }
         throw new Error("Failed to update profile");
       }
 
@@ -129,25 +187,31 @@ const CitizenDashboard = () => {
     }
 
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${CITIZEN_API}/${userId}`, {
         method: "PUT",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json",
         },
         body: JSON.stringify({
-          password_hash: passwordFormData.newPassword
-        })
+          password_hash: passwordFormData.newPassword,
+        }),
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          navigate("/login");
+          return;
+        }
         throw new Error("Failed to change password");
       }
 
       setPasswordFormData({
         currentPassword: "",
         newPassword: "",
-        confirmPassword: ""
+        confirmPassword: "",
       });
       setShowPasswordForm(false);
       alert("Mot de passe changé avec succès");
@@ -159,22 +223,28 @@ const CitizenDashboard = () => {
 
   const createSignalement = async (data) => {
     try {
+      const token = localStorage.getItem("token");
       const signalementData = {
         ...data,
         citizen_id: userId,
-        status: "nouveau"
+        status: "nouveau",
       };
 
       const response = await fetch(`${SIGNALEMENT_API}/`, {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json",
         },
-        body: JSON.stringify(signalementData)
+        body: JSON.stringify(signalementData),
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          navigate("/login");
+          return;
+        }
         throw new Error(`Failed to create signalement: ${await response.text()}`);
       }
 
@@ -189,16 +259,22 @@ const CitizenDashboard = () => {
 
   const updateSignalement = async (id, data) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${SIGNALEMENT_API}/${id}`, {
         method: "PUT",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          navigate("/login");
+          return;
+        }
         throw new Error("Failed to update signalement");
       }
 
@@ -219,14 +295,20 @@ const CitizenDashboard = () => {
     }
 
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${SIGNALEMENT_API}/${id}`, {
         method: "DELETE",
         headers: {
-          "Accept": "application/json"
-        }
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          navigate("/login");
+          return;
+        }
         throw new Error("Failed to delete signalement");
       }
 
@@ -254,7 +336,7 @@ const CitizenDashboard = () => {
       description: signalement.description,
       categorie: signalement.categorie,
       gravite: signalement.gravite,
-      commentaire: signalement.commentaire
+      commentaire: signalement.commentaire,
     });
     setShowForm(true);
   };
@@ -267,7 +349,7 @@ const CitizenDashboard = () => {
       description: "",
       categorie: "police",
       gravite: "mineur",
-      commentaire: ""
+      commentaire: "",
     });
     setEditingSignalement(null);
     setShowForm(false);
@@ -298,6 +380,10 @@ const CitizenDashboard = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  if (!userId) {
+    return <div>Chargement...</div>;
+  }
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -551,17 +637,29 @@ const CitizenDashboard = () => {
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-semibold text-lg">{signalement.titre}</h3>
                   <div className="flex gap-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(signalement.status)}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        signalement.status
+                      )}`}
+                    >
                       {signalement.status}
                     </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getGraviteColor(signalement.gravite)}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getGraviteColor(
+                        signalement.gravite
+                      )}`}
+                    >
                       {signalement.gravite}
                     </span>
                   </div>
                 </div>
                 <div className="text-sm text-gray-600 mb-2">
-                  <p><strong>Localisation:</strong> {signalement.localisation}, {signalement.ville}</p>
-                  <p><strong>Catégorie:</strong> {signalement.categorie}</p>
+                  <p>
+                    <strong>Localisation:</strong> {signalement.localisation}, {signalement.ville}
+                  </p>
+                  <p>
+                    <strong>Catégorie:</strong> {signalement.categorie}
+                  </p>
                 </div>
                 <p className="text-gray-700 mb-2">{signalement.description}</p>
                 {signalement.commentaire && (
