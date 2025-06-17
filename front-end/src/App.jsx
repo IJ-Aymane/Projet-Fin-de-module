@@ -5,6 +5,7 @@ import ListeSignalements from "./components/ListeSignalements";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import CitizenDashboard from "./pages/CitizenDashboard";
+import CreateAccount from "./components/create-account";
 import "./App.css";
 
 const App = () => {
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/citizen/dashboard" element={<CitizenDashboard />} />
+        <Route path="/create-account" element={<CreateAccount />} />
       </Routes>
     </div>
   );

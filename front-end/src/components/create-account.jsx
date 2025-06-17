@@ -29,7 +29,7 @@ const CreateAccount = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/auth/citizens/", {
+      const response = await axios.post("http://127.0.0.1:8000/citizens/", {
         email: email,
         numero_telephone: "0000000",
         password_hash: password
