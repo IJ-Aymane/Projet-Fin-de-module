@@ -1,166 +1,165 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FiSearch, FiUser } from 'react-icons/fi';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FiUser, FiSearch, FiBell, FiMenu, FiX } from "react-icons/fi";
 
 function Header() {
+  const [query, setQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const isAuthenticated = !!localStorage.getItem('currentUser');
+  const navigate = useNavigate();
+  
+  // You'll need to implement your authentication logic here
+  // This could come from a context, Redux store, or custom hook
+  const isAuthenticated = false; // Replace with your actual auth state
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const handleSearch = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Search:', searchQuery);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('currentUser');
-    window.location.reload();
+    if (query.trim()) {
+      navigate(`/?search=${encodeURIComponent(query)}`);
+    }
   };
 
   return (
-    <header className="w-full bg-violet-950 shadow-sm">
+    <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-violet-300 hover:text-blue-700 transition-colors">
-              Système de Signalements
-            </Link>
+          <Link 
+            to="/" 
+            className="flex items-center space-x-2 text-white hover:text-blue-200 transition-colors duration-200"
+          >
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+              <FiBell className="text-blue-600 text-lg" />
+            </div>
+            <span className="text-xl font-bold hidden sm:block">SignalementApp</span>
+            <span className="text-lg font-bold sm:hidden">SA</span>
+          </Link>
+
+          {/* Search Bar - Desktop */}
+          <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <form onSubmit={handleSubmit} className="w-full relative">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Rechercher par titre..."
+                  className="w-full pl-10 pr-4 py-2 border-0 rounded-full bg-white/90 backdrop-blur-sm text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white transition-all duration-200"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded-full transition-colors duration-200"
+                >
+                  <FiSearch className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
           </div>
 
-          {/* Navigation Links - Desktop */}
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/signalements" className="text-gray-300 hover:text-blue-300 transition-colors">
-              Liste des signalements
-            </Link>
-            {isAuthenticated && (
-              <Link to="/ajouter" className="text-gray-300 hover:text-blue-300 transition-colors">
-                Ajouter un signalement
-              </Link>
+            {isAuthenticated ? (
+              <>
+                <button className="text-white hover:text-blue-200 transition-colors duration-200">
+                  <FiBell className="w-5 h-5" />
+                </button>
+                <Link 
+                  to="/dashboard" 
+                  className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-all duration-200 backdrop-blur-sm"
+                >
+                  <FiUser className="w-4 h-4" />
+                  <span>Mon Compte</span>
+                </Link>
+              </>
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Link 
+                  to="/register" 
+                  className="text-white hover:text-blue-200 transition-colors duration-200 font-medium"
+                >
+                  S'inscrire
+                </Link>
+                <Link 
+                  to="/login" 
+                  className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  Connexion
+                </Link>
+              </div>
             )}
           </div>
 
-          {/* Right Section */}
-          <div className="hidden md:flex items-center space-x-4">
-            <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                className="pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent placeholder-gray-300"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button 
-                type="submit"
-                className="absolute right-3 top-3 text-gray-300 hover:text-blue-600"
-              >
-                <FiSearch size={18} />
-              </button>
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden text-white hover:text-blue-200 transition-colors duration-200"
+          >
+            {isMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-white/10 backdrop-blur-sm rounded-lg mt-2 mb-4 p-4 space-y-4">
+            {/* Mobile Search */}
+            <form onSubmit={handleSubmit} className="w-full">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Rechercher par titre..."
+                  className="w-full pl-10 pr-4 py-2 border-0 rounded-full bg-white text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded-full transition-colors duration-200"
+                >
+                  <FiSearch className="w-4 h-4" />
+                </button>
+              </div>
             </form>
 
-            {isAuthenticated ? (
-              <button
-                onClick={handleLogout}
-                className="p-2 text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                Se déconnecter
-              </button>
-            ) : (
-              <Link 
-                to="/login"
-                className="p-2 text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                <FiUser size={20} />
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <button 
-              onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-blue-600 hover:bg-gray-100 focus:outline-none transition-colors"
-            >
-              {isMenuOpen ? (
-                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-violet-950 shadow-md">
-          <div className="px-2 pt-2 pb-4 space-y-3">
             {/* Mobile Navigation Links */}
-            <Link 
-              to="/signalements" 
-              className="block px-3 py-2 text-gray-300 hover:text-blue-300 transition-colors"
-            >
-              Liste des signalements
-            </Link>
-            {isAuthenticated && (
-              <Link 
-                to="/ajouter"
-                className="block px-3 py-2 text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                Ajouter un signalement
-              </Link>
-            )}
-
-            {/* Mobile Search */}
-            <div className="pt-2">
-              <form onSubmit={handleSearch} className="flex-1">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Rechercher..."
-                    className="block w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-300"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <button 
-                    type="submit"
-                    className="absolute right-3 top-3 text-gray-300 hover:text-blue-600"
-                  >
-                    <FiSearch size={18} />
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* Mobile Auth */}
-            <div className="pt-2 pb-1">
+            <div className="flex flex-col space-y-3">
               {isAuthenticated ? (
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-3 py-2 text-gray-300 hover:text-blue-300 transition-colors"
-                >
-                  Se déconnecter
-                </button>
+                <>
+                  <Link 
+                    to="/dashboard" 
+                    className="flex items-center space-x-2 text-white hover:text-blue-200 transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <FiUser className="w-4 h-4" />
+                    <span>Mon Compte</span>
+                  </Link>
+                  <button className="flex items-center space-x-2 text-white hover:text-blue-200 transition-colors duration-200">
+                    <FiBell className="w-4 h-4" />
+                    <span>Notifications</span>
+                  </button>
+                </>
               ) : (
-                <Link 
-                  to="/login"
-                  className="block px-3 py-2 text-gray-300 hover:text-blue-300 transition-colors"
-                >
-                  Se connecter
-                </Link>
+                <>
+                  <Link 
+                    to="/register" 
+                    className="text-white hover:text-blue-200 transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    S'inscrire
+                  </Link>
+                  <Link 
+                    to="/login" 
+                    className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full font-medium transition-all duration-200 text-center"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Connexion
+                  </Link>
+                </>
               )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 }
