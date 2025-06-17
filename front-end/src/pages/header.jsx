@@ -74,7 +74,7 @@ function Header() {
             ) : (
               <div className="flex items-center space-x-3">
                 <Link 
-                  to="/register" 
+                  to="/create-account" 
                   className="text-white hover:text-blue-200 transition-colors duration-200 font-medium"
                 >
                   S'inscrire
@@ -141,7 +141,7 @@ function Header() {
               ) : (
                 <>
                   <Link 
-                    to="/register" 
+                    to="/create-account" 
                     className="text-white hover:text-blue-200 transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
