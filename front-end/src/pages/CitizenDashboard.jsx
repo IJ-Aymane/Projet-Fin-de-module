@@ -563,10 +563,8 @@ const CitizenDashboard = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 >
                   <option value="police">Police</option>
-                  <option value="infrastructure">Infrastructure</option>
-                  <option value="environnement">Environnement</option>
-                  <option value="transport">Transport</option>
-                  <option value="autre">Autre</option>
+                  <option value="hopital">Hopital</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
               <div>

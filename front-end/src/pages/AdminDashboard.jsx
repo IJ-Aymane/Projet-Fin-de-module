@@ -313,7 +313,7 @@ const AdminDashboard = () => {
                 <option value="">Tous les statuts</option>
                 <option value="nouveau">Nouveau</option>
                 <option value="en_cours">En cours</option>
-                <option value="resolu">Résolu</option>
+                <option value="résolu">résolu</option>
               </select>
               <select
                 className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -630,7 +630,7 @@ const AdminDashboard = () => {
                         >
                           <option value="nouveau">Nouveau</option>
                           <option value="en_cours">En cours</option>
-                          <option value="resolu">Résolu</option>
+                          <option value="résolu">Résolu</option>
                         </select>
                       </div>
                       <div>
