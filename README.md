@@ -314,25 +314,6 @@ SERVER_USER
 SERVER_SSH_KEY
 ```
 
-## 📊 Diagrammes UML
-
-### Diagramme de classes
-![Diagramme de classes](docs/uml/class-diagram.png)
-
-**Entités principales :**
-- `User` - Utilisateurs (citoyens et administrateurs)
-- `Report` - Signalements
-- `Category` - Catégories de signalements
-- `Status` - États des signalements
-- `Attachment` - Pièces jointes
-
-### Diagramme de cas d'utilisation
-![Diagramme de cas d'utilisation](docs/uml/use-case-diagram.png)
-
-**Acteurs :**
-- **Citoyen** : Soumettre signalement, suivre statut, consulter statistiques
-- **Administrateur** : Gérer signalements, analyser données, gérer utilisateurs
-- **Système** : Notifications, rapports automatiques
 
 ## 🤝 Contribution
 
@@ -347,15 +328,12 @@ SERVER_SSH_KEY
 - **Frontend** : Utiliser ESLint et Prettier
 - **Commits** : Messages en français, format conventionnel
 
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
 ## 📞 Contact
 
 - **Développeur** : IJ-Aymane
 - **Email** : ibenjellalaymane@gmail.com
-- **GitHub** : [https://github.com/IJ-Aymane
+- **GitHub** : https://github.com/IJ-Aymane
 
 ## 🙏 Remerciements
 
