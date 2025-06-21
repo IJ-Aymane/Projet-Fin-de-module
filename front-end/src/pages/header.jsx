@@ -30,7 +30,7 @@ function Header() {
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
               <FiBell className="text-blue-600 text-lg" />
             </div>
-            <span className="text-xl font-bold hidden sm:block">SignalementApp</span>
+            <span className="text-xl font-bold hidden sm:block">Civix</span>
             <span className="text-lg font-bold sm:hidden">SA</span>
           </Link>
 
